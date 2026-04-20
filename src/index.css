@@ -1,0 +1,108 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@import url('fonts.googleapis.com');
+
+html,
+body {
+    background-color: white;
+    color: black;
+}
+
+/* GLOBAL FONT */
+* {
+    font-family: "Fredoka", sans-serif;
+}
+
+
+html.dark,
+html.dark body {
+    background-color: #212435;
+}
+
+
+
+.slick-slider {
+    padding-bottom: 10px;   /* ← CREATES THE GAP */
+}
+
+
+/* Styles for Slider dots*/
+
+/* remove default slick bullets */
+.slick-dots li button:before {
+    margin-top: 5px;
+    display: none;
+}
+
+/* ===== LIGHT MODE ===== */
+
+.slick-dots {
+    bottom: -36px;
+}
+
+.slick-dots li {
+    margin: 0 4px;
+}
+
+.slick-dots li button {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border-radius: 9999px;
+    background: #e5e7eb; /* gray-200 */
+    transition: all 0.3s ease;
+}
+
+.slick-dots li.slick-active button {
+    width: 24px;
+    background: #faedcb; /* your accent */
+}
+
+/* ===== DARK MODE ===== */
+
+.dark .slick-dots li button {
+    background: #4b5563; /* gray-600 */
+}
+
+.dark .slick-dots li.slick-active button {
+    background: #f2c6de; /* keep brand accent */
+}
+
+@media (max-width: 768px) {
+    .slick-dots {
+        bottom: -22px;
+    }
+
+    .slick-dots li button {
+        width: 8px;
+        height: 8px;
+    }
+
+    .slick-dots li.slick-active button {
+        width: 20px;
+    }
+}
+
+/* Art & Design */
+.slider-art .slick-dots li.slick-active button {
+    background: #f2c6de;
+}
+
+/* Dark mode override */
+.dark .slider-art .slick-dots li.slick-active button {
+    background: #f9a8d4;
+}
+
+
+/* Login / Register page animation*/
+@keyframes fall {
+    from {
+        transform: translateY(-120px) rotate(0deg);
+    }
+    to {
+        transform: translateY(110vh) rotate(360deg);
+    }
+}
+
+

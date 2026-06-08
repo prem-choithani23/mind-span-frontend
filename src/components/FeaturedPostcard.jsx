@@ -73,8 +73,8 @@ export default function FeaturedPostCard({
             >
 
             {/* Author */}
-                <Link to={`/author/${author.slug}`}>
-                    <div className="flexitems-center gap-2 text-sm text-gray-600">
+                <Link to={`/author/${author.id}`}>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
                         <span className=" hover:underline font-medium">{author.name}</span>
                         <span>• 3 weeks ago</span>
                     </div>

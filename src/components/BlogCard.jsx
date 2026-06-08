@@ -160,7 +160,7 @@ export default function BlogCard({
             >
 
 
-                <Link to={`/author/${author.slug}`}>
+                <Link to={`/author/${author.id}`}>
 
                     <div className="flex items-center gap-3">
                         <img

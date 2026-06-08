@@ -1,18 +1,18 @@
 import axios from "axios";
+import { getAccessToken } from "../utils/auth.js";
 
 const API = axios.create({
     baseURL:import.meta.env.VITE_BASE_URL,
 })
 
 
-API.interceptors.request.use((req)=>{
-    const token = localStorage.getItem('token')
-    if(token){
-        req.headers.Authorization = `Bearer ${token}`
+API.interceptors.request.use((req) => {
+    const token = getAccessToken();
+    if (token) {
+        req.headers.Authorization = `Bearer ${token}`;
     }
-
     return req;
-})
+});
 
 API.interceptors.response.use((res)=> res,
     async (err)=>{

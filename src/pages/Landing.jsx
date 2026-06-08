@@ -6,32 +6,20 @@ import HeroSection from "./section/HeroSection.jsx";
 import SliderCardGrouping from "./section/SliderCardGrouping.jsx";
 
 export default function Landing() {
-
-
-
     return (
-        <div
-            className="
-                pt-8
-                lg:pt-11
-                xl:pt-15
-              "
-        >
-            {/*HERO SECTION*/}
-            <HeroSection/>
+        <div className="pt-8 lg:pt-11 xl:pt-15">
+            <HeroSection />
 
-            {/* LATEST POSTS */}
-            <SliderCardGrouping type={"Latest Posts"} isCategory={false}/>
+            <SliderCardGrouping type="Latest Posts" isCategory={false} />
 
-            {/* Art & Design */}
-            <CategoryBlogSection category={"Art & Design"}/>
+            <CategoryBlogSection
+                categoryId={2}
+                categoryName="Web Development"
+            />
 
-            {/*Editor's Choice*/}
-            <EditorsPicksSection/>
+            <EditorsPicksSection />
 
-            {/* Featured Section*/}
-            <FeaturedSection/>
-
+            <FeaturedSection />
         </div>
     );
 }

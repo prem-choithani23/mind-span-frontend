@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthLayer from "../layouts/AuthLayer.jsx";
+import ProtectedRoute from "../layouts/ProtectedRoute.jsx";
 import MainLayout from "../layouts/MainLayout.jsx";
 import Landing from "../pages/Landing.jsx";
 import Login from "../pages/Login.jsx";
@@ -10,32 +11,33 @@ import NotFound from "../pages/NotFound.jsx";
 import BlogDetails from "../pages/BlogDetails.jsx";
 import Profile from "../pages/Profile.jsx";
 import AuthorProfile from "../components/author/AuthorProfile.jsx";
+
 function AppRoutes() {
     return (
         <BrowserRouter>
             <Routes>
 
-                {/*Authentication Layer*/}
-                <Route element={<AuthLayer/>}>
-
-
-                    {/* Public */}
+                {/* Auth page guard — redirects logged-in users away from login/register */}
+                <Route element={<AuthLayer />}>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-
-                    {/* Protected  */}
-                    <Route path="/" element={<MainLayout />}>
-                        <Route index element={<Landing />} />
-                        <Route path ="profile" element={<Profile/>}/>
-                        <Route path="blogs" element={<Blogs />} />
-                        <Route path="about" element={<About />} />
-                        <Route path="blogs/:slug" element={<BlogDetails />} />
-                        <Route path={"/author/:slug"} element={<AuthorProfile />} />
-                    </Route>
-
                 </Route>
 
-                <Route path={"*"} element={<NotFound/>}></Route>
+                {/* Public routes */}
+                <Route path="/" element={<MainLayout />}>
+                    <Route index element={<Landing />} />
+                    <Route path="blogs" element={<Blogs />} />
+                    <Route path="blogs/:slug" element={<BlogDetails />} />
+                    <Route path="about" element={<About />} />
+                    <Route path="author/:slug" element={<AuthorProfile />} />
+
+                    {/* Protected routes — require login */}
+                    <Route element={<ProtectedRoute />}>
+                        <Route path="profile" element={<Profile />} />
+                    </Route>
+                </Route>
+
+                <Route path="*" element={<NotFound />} />
 
             </Routes>
         </BrowserRouter>

@@ -1,27 +1,27 @@
-import React from "react"
-import {getFeaturedBlogs} from "../../data/blogSelector.js";
+import { useEffect, useState } from "react";
 import MultipleItemSlider from "../../components/MultipleItemSlider.jsx";
 import HeroBlog from "../../components/HeroBlog.jsx";
-export default function HeroSection(){
+import { getFeaturedPosts } from "../../api/services/postService.js";
 
-    function shuffleArray(arr) {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    }
+export default function HeroSection() {
+    const [posts, setPosts] = useState([]);
 
+    useEffect(() => {
+        getFeaturedPosts(6)
+            .then((res) => {
+                const shuffled = [...res.data.content].sort(() => Math.random() - 0.5);
+                setPosts(shuffled.slice(0, 4));
+            })
+            .catch(console.error);
+    }, []);
 
-    const heroBlogs = shuffleArray(getFeaturedBlogs()).slice(0,4)
+    if (!posts.length) return null;
 
     return (
         <MultipleItemSlider autoplay={true}>
-            {
-                heroBlogs && heroBlogs.map(heroBlog => (
-                    <HeroBlog heroBlog = {heroBlog}/>
-                ))
-            }
+            {posts.map((post) => (
+                <HeroBlog key={post.id} heroBlog={post} />
+            ))}
         </MultipleItemSlider>
-    )
+    );
 }

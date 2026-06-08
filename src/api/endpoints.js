@@ -44,8 +44,10 @@ const postEndpoints = {
 /* ===================== AUTH ===================== */
 const authEndpoints = {
     login: "/auth/login",
+    verifyOtp: "/auth/verify-otp",
     register: "/auth/register",
     refresh: "/auth/refresh",
+    forgotPassword: "/password/forgot-password",
 };
 
 

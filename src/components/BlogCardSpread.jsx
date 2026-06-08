@@ -148,7 +148,7 @@ export default function BlogCardSpread({
                 "
                 style={{ backgroundColor: lowerColor }}
             >
-                <Link to={`/author/${author.slug}`}>
+                <Link to={`/author/${author.id}`}>
                     <div className="flex items-center gap-3">
                         <img
                             src={author.imageUrl}

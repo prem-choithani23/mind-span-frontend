@@ -1,8 +1,3 @@
-export const isAuthenticated = () =>
-    Boolean(localStorage.getItem("auth"));
-
-export const login = () =>
-    localStorage.setItem("auth", "true");
-
-export const logout = () =>
-    localStorage.removeItem("auth");
+export const getAccessToken = () => localStorage.getItem("accessToken");
+export const getRefreshToken = () => localStorage.getItem("refreshToken");
+export const isAuthenticated = () => Boolean(localStorage.getItem("accessToken"));

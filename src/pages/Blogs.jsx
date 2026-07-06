@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { pastelColorFromString, lightenHsl } from "../utils/color";
 import { getAllPosts, getPostsByCategory, searchPosts } from "../api/services/postService.js";
 import { getAllCategories } from "../api/services/categoryService.js";
+import { getBlogCardImage } from "../utils/blogCardImage.js";
 
 const BLOGS_PER_PAGE = 6;
 
@@ -144,7 +145,7 @@ export default function Blogs() {
                                     lowerColor={lowerColor}
                                     upperColor={upperColor}
                                     title={post.title}
-                                    imageUrl={post.featuredImageUrl}
+                                    imageUrl={getBlogCardImage(post)}
                                     author={post.author}
                                     category={post.category?.name}
                                     views={post.viewCount}

@@ -1,6 +1,6 @@
 import React from "react";
 import {Link} from "react-router-dom";
-import CATEGORY_ICONS from "../utils/categorySymbol.js";
+import CATEGORY_ICONS, { DEFAULT_CATEGORY_ICON,DEFAULT_AVATAR_ICON } from "../utils/categorySymbol.js";
 export default function BlogCardSpread({
                                            upperColor = "#cfe5f3",
                                            lowerColor = "#c4dced",
@@ -19,7 +19,10 @@ export default function BlogCardSpread({
                                        }) {
 
 
-    const categoryImageUrl = CATEGORY_ICONS[category];
+    const categoryImageUrl = CATEGORY_ICONS[category] != null ? CATEGORY_ICONS[category] : DEFAULT_CATEGORY_ICON;
+
+    const avatarUrl = author.imageUrl ? author.imageUrl : DEFAULT_AVATAR_ICON
+    
 
     
     return (
@@ -151,7 +154,7 @@ export default function BlogCardSpread({
                 <Link to={`/author/${author.id}`}>
                     <div className="flex items-center gap-3">
                         <img
-                            src={author.imageUrl}
+                            src={avatarUrl}
                             className="w-8 h-8 rounded-full"
                             alt="author"
                         />

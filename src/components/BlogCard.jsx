@@ -1,21 +1,23 @@
 import React from "react";
 import {Link} from "react-router-dom";
-import CATEGORY_ICONS from "../utils/categorySymbol.js";
+import CATEGORY_ICONS, { DEFAULT_AVATAR_ICON, DEFAULT_CATEGORY_ICON } from "../utils/categorySymbol.js";
+
 export default function BlogCard({
-                                     upperColor = "#cfe5f3",
-                                     lowerColor = "#c4dced",
-                                     title = "Together happy feelings continue juvenile one had",
-                                     imageUrl,
-                                     author = "William Lewis",
-                                     comments = 0,
-                                     views = 3,
-                                     category = "Lifestyle",
-                                     slug,
-                                     time = "3 weeks ago",
-                                 }) {
+            upperColor = "#cfe5f3",
+            lowerColor = "#c4dced",
+            title = "Together happy feelings continue juvenile one had",
+            imageUrl,
+            author = "William Lewis",
+            comments = 0,
+            views = 3,
+            category = "Lifestyle",
+            slug,
+            time = "3 weeks ago",
+        }) {
 
-    const categoryImageUrl = CATEGORY_ICONS[category];
+    const categoryImageUrl = CATEGORY_ICONS[category] != null ? CATEGORY_ICONS[category] : DEFAULT_CATEGORY_ICON;
 
+    const avatarUrl = author.imageUrl ? author.imageUrl : DEFAULT_AVATAR_ICON
     return (
         <div
             className={`
@@ -23,13 +25,6 @@ export default function BlogCard({
                 w-full
                 rounded-md overflow-hidden
                 shadow-lg bg-white
-                
-                
-               
-                
-
-
-
             `}
         >
 
@@ -164,7 +159,7 @@ export default function BlogCard({
 
                     <div className="flex items-center gap-3">
                         <img
-                            src={author.imageUrl}
+                            src={avatarUrl}
                             className="w-8 h-8 rounded-full"
                             alt="author"
                         />

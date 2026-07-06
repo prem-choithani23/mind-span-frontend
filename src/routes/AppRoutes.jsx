@@ -11,6 +11,7 @@ import NotFound from "../pages/NotFound.jsx";
 import BlogDetails from "../pages/BlogDetails.jsx";
 import Profile from "../pages/Profile.jsx";
 import AuthorProfile from "../components/author/AuthorProfile.jsx";
+import CreatePost from "../pages/CreatePost.jsx";
 
 function AppRoutes() {
     return (
@@ -27,6 +28,7 @@ function AppRoutes() {
                 <Route path="/" element={<MainLayout />}>
                     <Route index element={<Landing />} />
                     <Route path="blogs" element={<Blogs />} />
+                    <Route path="/create-post" element={<CreatePost/>}/>
                     <Route path="blogs/:slug" element={<BlogDetails />} />
                     <Route path="about" element={<About />} />
                     <Route path="author/:slug" element={<AuthorProfile />} />

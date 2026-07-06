@@ -14,10 +14,10 @@ export default function HeroBlog({ heroBlog }) {
                 backgroundColor: upperColor,
             }}
         >
-            <div
+            {/* <div
                 className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[color:var(--upper)]/50 via-[color:var(--upper)]/80 to-[color:var(--upper)]/200"
                 style={{ "--upper": upperColor }}
-            />
+            /> */}
 
             <div className="relative z-10 h-full flex flex-col justify-end px-6 pb-6 text-white">
                 <div className="flex items-center gap-3 mb-4 text-sm text-[#3b3f45] opacity-90">

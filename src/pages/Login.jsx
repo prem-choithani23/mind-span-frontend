@@ -203,7 +203,7 @@ function Login() {
                         <input
                             className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black tracking-[0.5em] text-center text-lg font-mono"
                             value={otp}
-                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                            onChange={(e) => setOtp(e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 6))}
                             placeholder="000000"
                             maxLength={6}
                         />

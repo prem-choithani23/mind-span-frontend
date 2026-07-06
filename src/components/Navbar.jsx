@@ -13,10 +13,12 @@ import { projectName } from "../hooks/usePageTitle.js";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
+import { useRole } from "../hooks/useRole.js";
 
 function Navbar() {
     const { darkMode, toggleDarkMode } = useTheme();
     const { user, logout } = useAuth();
+    const { canWritePost } = useRole();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -139,15 +141,61 @@ function Navbar() {
                     </button>
 
                     {user ? (
-                        <div className="relative">
-                            <button
-                                onClick={() => setDropdownOpen((p) => !p)}
-                                className="w-10 h-10 rounded-full bg-sky-500 flex items-center justify-center text-white font-bold text-sm hover:bg-sky-600 transition"
-                            >
-                                {user.name?.charAt(0).toUpperCase()}
-                            </button>
+                        <div className="flex items-center gap-3">
 
-                            {dropdownOpen && (
+                            {canWritePost && (
+                                <Link
+                                    to="/create-post"
+                                    className="
+                                        h-10
+                                        px-5
+                                        rounded-xl
+                                        bg-sky-500
+                                        hover:bg-sky-600
+                                        text-white
+                                        font-semibold
+                                        inline-flex
+                                        items-center
+                                        justify-center
+                                        transition-all
+                                        duration-200
+                                        hover:-translate-y-0.5
+                                        hover:shadow-lg
+                                    "
+                                >
+                                    <span className="text-lg leading-none mr-2">+</span>
+
+                                    <span className="hidden md:block">
+                                        Create Post
+                                    </span>
+                                </Link>
+                            )}
+
+                            <div className="relative">
+
+                                <button
+                                    onClick={() => setDropdownOpen((p) => !p)}
+                                    className="
+                                        h-10
+                                        w-10
+                                        rounded-full
+                                        bg-sky-500
+                                        hover:bg-sky-600
+                                        flex
+                                        items-center
+                                        justify-center
+                                        text-white
+                                        font-bold
+                                        transition-all
+                                        duration-200
+                                        hover:ring-4
+                                        hover:ring-sky-200
+                                    "
+                                >
+                                    {user.name?.charAt(0).toUpperCase()}
+                                </button>
+
+                                {dropdownOpen && (
                                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#2e3141] rounded-xl shadow-lg border border-gray-100 dark:border-white/10 overflow-hidden z-50">
                                     <div className="px-4 py-3 border-b border-gray-100 dark:border-white/10">
                                         <p className="text-sm font-semibold text-black dark:text-white truncate">{user.name}</p>
@@ -169,6 +217,9 @@ function Navbar() {
                                     </button>
                                 </div>
                             )}
+
+                            </div>
+
                         </div>
                     ) : (
                         <Link to="/login" className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 transition text-white text-sm font-semibold">

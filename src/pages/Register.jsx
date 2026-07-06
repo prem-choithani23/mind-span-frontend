@@ -16,8 +16,7 @@ const ConfirmPasswordErrorMessage = () => (
 );
 
 function Register() {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState({ value: "", isTouched: false });
     const [confirmPassword, setConfirmPassword] = useState({ value: "", isTouched: false, hasText: false });
@@ -28,14 +27,13 @@ function Register() {
     const { login } = useAuth();
 
     const getIsFormValid = () =>
-        firstName &&
+        name &&
         validateEmail(email) &&
         password.value.length >= 8 &&
         confirmPassword.value === password.value;
 
     const clearForm = () => {
-        setFirstName("");
-        setLastName("");
+        setName("");
         setEmail("");
         setPassword({ value: "", isTouched: false });
         setConfirmPassword({ value: "", isTouched: false, hasText: false });
@@ -47,8 +45,7 @@ function Register() {
         setLoading(true);
         try {
             const res = await registerUser({
-                firstName,
-                lastName,
+                name,
                 email,
                 password: password.value,
             });
@@ -84,25 +81,16 @@ function Register() {
 
                 <div className="mb-5">
                     <label className="block text-sm font-medium mb-1">
-                        First name <span className="text-red-500">*</span>
+                        Name <span className="text-red-500">*</span>
                     </label>
                     <input
                         className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="First name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Name"
                     />
                 </div>
 
-                <div className="mb-5">
-                    <label className="block text-sm font-medium mb-1">Last name</label>
-                    <input
-                        className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Last name"
-                    />
-                </div>
 
                 <div className="mb-5">
                     <label className="block text-sm font-medium mb-1">

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 
-
 export default function LikeButton({ liked, count, onToggle, disabled }) {
     const [pop, setPop] = useState(false);
+
     useEffect(() => {
         if (!pop) return;
         const t = setTimeout(() => setPop(false), 280);

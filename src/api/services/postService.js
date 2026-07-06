@@ -50,6 +50,12 @@ export const getLatestPosts = (size = 10) =>
         params: { page: 0, size, sortBy: "publishedAt", sortDir: "desc" },
     });
 
+export const getPostLikeStatus = (postId) =>
+    API.get(resolvePath(postEndpoints.hasLikedPost, { postId }));
+
+export const getLikeStatus = (postId) =>
+    getPostLikeStatus(postId);
+
 export const createPost = (data) =>
     API.post(postEndpoints.create, data);
 
@@ -60,4 +66,15 @@ export const deletePost = (id) =>
     API.delete(resolvePath(postEndpoints.delete, { id }));
 
 export const publishPost = (id) =>
-    API.patch(resolvePath(postEndpoints.publishPost, { id }));
+    API.post(resolvePath(postEndpoints.publishPost, { id }));
+
+export const uploadPostImage = (id, file) => {
+    const form = new FormData();
+    form.append("file", file);
+    return API.post(resolvePath(postEndpoints.uploadImage, { id }), form, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+};
+
+export const likePost = (postId) =>
+    API.post(resolvePath(postEndpoints.likePost, { postId }));

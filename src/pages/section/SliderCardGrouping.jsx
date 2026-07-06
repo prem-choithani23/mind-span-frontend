@@ -4,6 +4,7 @@ import MultipleItemSlider from "../../components/MultipleItemSlider.jsx";
 import { getLatestPosts, getPostsByCategory } from "../../api/services/postService.js";
 import { pastelColorFromString, lightenHsl } from "../../utils/color.js";
 import { timeAgo } from "../../utils/timeAgo.js";
+import { getBlogCardImage } from "../../utils/blogCardImage.js";
 import Next from "../../../public/assets/icons/next.png";
 
 export default function SliderCardGrouping({ type = "Latest Posts", isCategory = false, categoryId = null }) {
@@ -50,7 +51,7 @@ export default function SliderCardGrouping({ type = "Latest Posts", isCategory =
                                 views={post.viewCount}
                                 time={timeAgo(post.publishedAt)}
                                 title={post.title}
-                                imageUrl={post.featuredImageUrl}
+                                imageUrl={getBlogCardImage(post)}
                             />
                         );
                     })}
@@ -73,7 +74,7 @@ export default function SliderCardGrouping({ type = "Latest Posts", isCategory =
                                 views={post.viewCount}
                                 time={timeAgo(post.publishedAt)}
                                 title={post.title}
-                                imageUrl={post.featuredImageUrl}
+                                imageUrl={getBlogCardImage(post)}
                                 responsiveFeatured={index === 2}
                             />
                         </div>

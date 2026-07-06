@@ -5,6 +5,7 @@ import SidebarTrending from "../../components/SidebarTrending.jsx";
 import FeaturedPostCard from "../../components/FeaturedPostcard.jsx";
 import { timeAgo } from "../../utils/timeAgo.js";
 import { pastelColorFromString, lightenHsl } from "../../utils/color.js";
+import { getBlogCardImage } from "../../utils/blogCardImage.js";
 
 export default function FeaturedSection() {
     const [featured, setFeatured] = useState([]);
@@ -35,7 +36,7 @@ export default function FeaturedSection() {
                     res.data.content.map((p) => ({
                         id: p.id,
                         title: p.title,
-                        imageUrl: p.featuredImageUrl,
+                        imageUrl: getBlogCardImage(p),
                         upperColor: lightenHsl(pastelColorFromString(p.id.toString()), 6),
                         slug: p.slug,
                         time: timeAgo(p.publishedAt),
@@ -68,7 +69,7 @@ export default function FeaturedSection() {
                                 slug={post.slug}
                                 id={post.id}
                                 upperColor={lightenHsl(pastelColorFromString(post.id.toString()), 6)}
-                                imageUrl={post.featuredImageUrl}
+                                imageUrl={getBlogCardImage(post)}
                                 title={post.title}
                                 author={post.author}
                                 views={post.viewCount}

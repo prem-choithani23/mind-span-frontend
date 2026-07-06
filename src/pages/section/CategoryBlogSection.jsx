@@ -6,6 +6,7 @@ import TopPicks from "../../components/TopPicks.jsx";
 import { getPostsByCategory } from "../../api/services/postService.js";
 import { pastelColorFromString, lightenHsl } from "../../utils/color.js";
 import { timeAgo } from "../../utils/timeAgo.js";
+import { getBlogCardImage } from "../../utils/blogCardImage.js";
 import Next from "../../../public/assets/icons/next.png";
 
 export default function CategoryBlogSection({
@@ -42,7 +43,7 @@ export default function CategoryBlogSection({
                 views={post.viewCount}
                 time={timeAgo(post.publishedAt)}
                 title={post.title}
-                imageUrl={post.featuredImageUrl}
+                imageUrl={getBlogCardImage(post)}
             />
         );
     };

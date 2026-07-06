@@ -3,6 +3,7 @@ import MultipleItemSlider from "../../components/MultipleItemSlider.jsx";
 import EditorsPickCard from "../../components/EditorsPickCard.jsx";
 import { getLatestPosts } from "../../api/services/postService.js";
 import { pastelColorFromString, lightenHsl } from "../../utils/color.js";
+import { getBlogCardImage } from "../../utils/blogCardImage.js";
 
 export default function EditorsPicksSection() {
     const [picks, setPicks] = useState([]);
@@ -23,7 +24,7 @@ export default function EditorsPicksSection() {
                 key={post.id}
                 id={post.id}
                 slug={post.slug}
-                imageUrl={post.featuredImageUrl}
+                imageUrl={getBlogCardImage(post)}
                 title={post.title}
                 author={post.author}
                 upperColor={upperColor}

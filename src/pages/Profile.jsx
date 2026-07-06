@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { getPostsByUser, getFeaturedPosts } from "../api/services/postService.js";
 import BlogCard from "../components/BlogCard.jsx";
 import { pastelColorFromString, lightenHsl } from "../utils/color.js";
+import { getBlogCardImage } from "../utils/blogCardImage.js";
 
 export default function Profile() {
     const { user } = useAuth();
@@ -40,7 +41,26 @@ export default function Profile() {
                 id={post.id}
                 slug={post.slug}
                 title={post.title}
-                imageUrl={post.featuredImageUrl}
+                imageUrl={getBlogCardImage(post)}
+                author={post.author}
+                views={post.viewCount}
+                category={post.category?.name}
+                upperColor={upperColor}
+                lowerColor={lowerColor}
+            />
+        );
+    };
+
+    const renderMyPostCard = (post) => {
+        const lowerColor = pastelColorFromString(post.id.toString());
+        const upperColor = lightenHsl(lowerColor, 6);
+        return (
+            <BlogCard
+                key={post.id}
+                id={post.id}
+                slug={post.slug}
+                title={post.title}
+                imageUrl={getBlogCardImage(post)}
                 author={post.author}
                 views={post.viewCount}
                 category={post.category?.name}
@@ -81,7 +101,7 @@ export default function Profile() {
                         <p className="text-gray-500 dark:text-[#94979e]">You haven't published any posts yet.</p>
                     ) : (
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {myPosts.map(renderCard)}
+                            {myPosts.map(renderMyPostCard)}
                         </div>
                     )}
                 </section>

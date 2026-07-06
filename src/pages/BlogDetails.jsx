@@ -14,6 +14,7 @@ import { getBlogCardImage } from "../utils/blogCardImage.js";
 import { getImageUrl } from "../utils/imageUrlUtil.js";
 import { useToast } from "../context/ToastContext.jsx";
 import LikeButton from "../components/LikeButton.jsx";
+import { DEFAULT_AVATAR_ICON } from "../utils/categorySymbol.js";
 
 // The "liked" flag can come back from the API as a raw boolean, or wrapped in an
 // object under a few different common key names depending on the endpoint. Reading
@@ -79,63 +80,59 @@ export default function BlogDetails() {
     };
 
     useEffect(() => {
-    const loadData = async () => {
-        try {
-            setLoading(true);
+        setLoading(true);
 
-            // Load the post
-            const { data: p } = await getPostBySlug(slug);
-            setPost(p);
-            setLikeCount(p.likeCount || 0);
+        // load post and like info
+        getPostBySlug(slug)
+            .then(async (res) => {
+                const p = res.data;
+                setPost(p);
+                setLikeCount(p.likeCount || 0);
 
-            // Load whether current user has liked it
-            if (user) {
-                try {
-                    const { data: hasLiked } = await getLikeStatus(p.id);
-                    setLiked(hasLiked);
-                } catch (err) {
-                    console.error("Unable to fetch like status", err);
+                if (user && p.id) {
+                    try {
+                        const likeRes = await getLikeStatus(p.id);
+                        setLiked(resolveLikedFlag(likeRes.data));
+                    } catch (error) {
+                        console.error("Unable to fetch like status", error);
+                        setLiked(false);
+                    }
+                } else {
                     setLiked(false);
                 }
-            } else {
-                setLiked(false);
-            }
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false));
 
-            // Load latest posts
-            const latestRes = await getLatestPosts(3);
-            setLatest(
-                latestRes.data.content.map((post) => ({
-                    id: post.id,
-                    title: post.title,
-                    date: post.publishedAt,
-                    slug: post.slug,
-                }))
-            );
+        // load side lists
+        getLatestPosts(3)
+            .then((res) =>
+                setLatest(
+                    res.data.content.map((p) => ({
+                        id: p.id,
+                        title: p.title,
+                        date: p.publishedAt,
+                        slug: p.slug,
+                    }))
+                )
+            )
+            .catch(console.error);
 
-            // Load trending posts
-            const trendingRes = await getTrendingPosts(3);
-            setTrending(
-                trendingRes.data.content.map((post) => ({
-                    id: post.id,
-                    title: post.title,
-                    imageUrl: getBlogCardImage(post),
-                    upperColor: lightenHsl(
-                        pastelColorFromString(post.id.toString()),
-                        6
-                    ),
-                    slug: post.slug,
-                    time: timeAgo(post.publishedAt),
-                }))
-            );
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    loadData();
-}, [slug, user]);
+        getTrendingPosts(3)
+            .then((res) =>
+                setTrending(
+                    res.data.content.map((p) => ({
+                        id: p.id,
+                        title: p.title,
+                        imageUrl: getBlogCardImage(p),
+                        upperColor: lightenHsl(pastelColorFromString(p.id.toString()), 6),
+                        slug: p.slug,
+                        time: timeAgo(p.publishedAt),
+                    }))
+                )
+            )
+            .catch(console.error);
+    }, [slug, user]);
 
     if (loading) {
         return (
@@ -166,13 +163,24 @@ export default function BlogDetails() {
                 className="relative rounded-3xl overflow-hidden"
                 style={!post.featuredImageUrl ? { background: `linear-gradient(180deg, ${upperColor}, ${lowerColor})` } : undefined}
             >
-                <div className="relative h-[280px] sm:h-[340px] lg:h-[420px] w-full">
+                <div className="relative h-[280px] sm:h-[340px] lg:h-[420px] w-full overflow-hidden">
                     {post.featuredImageUrl && (
-                        <img
-                            src={getImageUrl(post.featuredImageUrl)}
-                            alt={post.title}
-                            className="absolute inset-0 h-full w-full"
-                        />
+                        <>
+                            {/* blurred, scaled-up backdrop — fills any space left/right of the
+                                unstretched image so there's never a hard empty edge */}
+                            <img
+                                src={getImageUrl(post.featuredImageUrl)}
+                                alt=""
+                                aria-hidden="true"
+                                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-75"
+                            />
+                            {/* the real image, shown at its true aspect ratio — never stretched or cropped */}
+                            <img
+                                src={getImageUrl(post.featuredImageUrl)}
+                                alt={post.title}
+                                className="absolute inset-0 h-full w-full object-contain"
+                            />
+                        </>
                     )}
                     {/* scrim: transparent at top, solid black toward the bottom where the title sits */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
@@ -192,7 +200,7 @@ export default function BlogDetails() {
             <div className="mb-16 mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-600 dark:text-gray-300">
                 <div className="flex items-center gap-2.5">
                     <img
-                        src={post.author?.avatarUrl || post.author?.imageUrl || "/assets/icons/default-profile.svg"}
+                        src={post.author?.avatarUrl || post.author?.imageUrl || DEFAULT_AVATAR_ICON}
                         alt={post.author?.name || "author"}
                         className="h-9 w-9 rounded-full border border-gray-200 object-cover dark:border-white/10"
                     />

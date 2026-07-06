@@ -1,53 +1,65 @@
+/* ===================== API PREFIX ===================== */
+const API_PREFIX = "/api/v1";
+
 /* ===================== CATEGORY ===================== */
 const categoryEndpoints = {
-    getAll: "/categories",
-    getById: "/categories/:id",
-    getBySlug: "/categories/slug/:slug",
-    create: "/categories",
-    update: "/categories/:id",
-    delete: "/categories/:id",
+    getAll: `${API_PREFIX}/categories`,
+    getById: `${API_PREFIX}/categories/:id`,
+    getBySlug: `${API_PREFIX}/categories/slug/:slug`,
+    create: `${API_PREFIX}/categories`,
+    update: `${API_PREFIX}/categories/:id`,
+    delete: `${API_PREFIX}/categories/:id`,
 };
 
 
 /* ===================== TAG ===================== */
 const tagEndpoints = {
-    getAll: "/tags",
-    getById: "/tags/:id",
-    getBySlug: "/tags/slug/:slug",
-    create: "/tags",
-    update: "/tags/:id",
-    delete: "/tags/:id",
+    getAll: `${API_PREFIX}/tags`,
+    getById: `${API_PREFIX}/tags/:id`,
+    getBySlug: `${API_PREFIX}/tags/slug/:slug`,
+    create: `${API_PREFIX}/tags`,
+    update: `${API_PREFIX}/tags/:id`,
+    delete: `${API_PREFIX}/tags/:id`,
 };
 
 
 /* ===================== POST ===================== */
 const postEndpoints = {
-    getAll: "/posts", // ?page=&size=&sortBy=&sortDir=
-    getById: "/posts/:id",
-    getBySlug: "/posts/slug/:slug",
+    getAll: `${API_PREFIX}/posts`, // ?page=&size=&sortBy=&sortDir=
+    getById: `${API_PREFIX}/posts/:id`,
+    getBySlug: `${API_PREFIX}/posts/slug/:slug`,
 
-    getPostByUser: "/posts/user/:userId", // ?page=&size=
-    search: "/posts/search", // ?query=&page=&size=
+    getPostByUser: `${API_PREFIX}/posts/user/:userId`, // ?page=&size=
+    search: `${API_PREFIX}/posts/search`, // ?query=&page=&size=
 
-    getPostsByCategory: "/posts/category/:categoryId", // ?page=&size=
-    getPostsByTag: "/posts/tag/:tagId",
+    getPostsByCategory: `${API_PREFIX}/posts/category/:categoryId`, // ?page=&size=
+    getPostsByTag: `${API_PREFIX}/posts/tag/:tagId`,
 
-    publishPost: "/posts/:id/publish",
-    uploadImage: "/posts/:id/image",
+    publishPost: `${API_PREFIX}/posts/:id/publish`,
+    uploadImage: `${API_PREFIX}/posts/:id/image`,
+    likePost: `${API_PREFIX}/posts/like/:postId`,
+    hasLikedPost: `${API_PREFIX}/post-user-like/:postId`,
 
-    create: "/posts", // multipart/form-data
-    update: "/posts/:id",
-    delete: "/posts/:id",
+    create: `${API_PREFIX}/posts`, // multipart/form-data
+    update: `${API_PREFIX}/posts/:id`,
+    delete: `${API_PREFIX}/posts/:id`,
 };
 
 
 /* ===================== AUTH ===================== */
 const authEndpoints = {
-    login: "/auth/login",
-    verifyOtp: "/auth/verify-otp",
-    register: "/auth/register",
-    refresh: "/auth/refresh",
-    forgotPassword: "/password/forgot-password",
+    login: `${API_PREFIX}/auth/login`,
+    verifyOtp: `${API_PREFIX}/auth/verify-otp`,
+    register: `${API_PREFIX}/auth/register`,
+    refresh: `${API_PREFIX}/auth/refresh`,
+    forgotPassword: `${API_PREFIX}/password/forgot-password`,
+};
+
+/* ===================== COMMENT ===================== */
+const commentEndpoints = {
+    byPost: `${API_PREFIX}/comments/:postId`,
+    create: `${API_PREFIX}/comments`,
+    delete: `${API_PREFIX}/comments/:commentId`,
 };
 
 
@@ -56,4 +68,5 @@ export {
     tagEndpoints,
     postEndpoints,
     authEndpoints,
+    commentEndpoints,
 };

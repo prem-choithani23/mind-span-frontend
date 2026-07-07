@@ -14,6 +14,8 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { useRole } from "../hooks/useRole.js";
+import { getImageUrl } from "../utils/imageUrlUtil.js";
+import { DEFAULT_AVATAR_ICON } from "../utils/categorySymbol.js";
 
 function Navbar() {
     const { darkMode, toggleDarkMode } = useTheme();
@@ -45,6 +47,8 @@ function Navbar() {
         }`;
 
     const sidebarNavClass = "py-[10px] text-[16px] font-semibold text-black dark:text-white flex justify-between items-center hover:text-sky-500 dark:hover:text-pink-300 z-100 transition cursor-pointer";
+
+    const avatarUrl = user?.avatarUrl ? getImageUrl(user.avatarUrl) : DEFAULT_AVATAR_ICON;
 
     return (
         <>
@@ -128,15 +132,15 @@ function Navbar() {
                 </div>
 
                 {/* RIGHT */}
-                <div className="flex-1 flex justify-end gap-3 items-center">
+                <div className="flex-1 flex justify-end items-center gap-2 lg:gap-3 min-w-0">
                     <button
                         onClick={toggleDarkMode}
-                        className={`h-10 w-10 rounded-full flex items-center justify-center transition-colors duration-300 ${darkMode ? scrolled ? "bg-[#212435]" : "bg-[#2e3141]" : scrolled ? "bg-white" : "bg-[#f5f5f5]"}`}
+                        className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center transition-colors duration-300 ${darkMode ? scrolled ? "bg-[#212435]" : "bg-[#2e3141]" : scrolled ? "bg-white" : "bg-[#f5f5f5]"}`}
                     >
                         {darkMode ? <SunIcon className="h-5 w-5 text-white" /> : <MoonIcon className="h-5 w-5 text-black" />}
                     </button>
 
-                    <button className={`h-10 w-10 rounded-full flex items-center justify-center transition-colors duration-300 ${darkMode ? scrolled ? "bg-[#212435]" : "bg-[#2e3141]" : scrolled ? "bg-white" : "bg-[#f5f5f5]"}`}>
+                    <button className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center transition-colors duration-300 ${darkMode ? scrolled ? "bg-[#212435]" : "bg-[#2e3141]" : scrolled ? "bg-white" : "bg-[#f5f5f5]"}`}>
                         <SearchIcon className={`h-5 w-5 ${darkMode ? "text-white" : "text-black"}`} />
                     </button>
 
@@ -144,32 +148,34 @@ function Navbar() {
                         <div className="flex items-center gap-3">
 
                             {canWritePost && (
-                                <Link
-                                    to="/create-post"
-                                    className="
-                                        h-10
-                                        px-5
-                                        rounded-xl
-                                        bg-sky-500
-                                        hover:bg-sky-600
-                                        text-white
-                                        font-semibold
-                                        inline-flex
-                                        items-center
-                                        justify-center
-                                        transition-all
-                                        duration-200
-                                        hover:-translate-y-0.5
-                                        hover:shadow-lg
-                                    "
-                                >
-                                    <span className="text-lg leading-none mr-2">+</span>
+    <Link
+        to="/create-post"
+        className="
+            h-10
+            w-10 sm:w-auto
+            sm:px-4 lg:px-5
+            rounded-xl
+            bg-sky-500
+            hover:bg-sky-600
+            text-white
+            font-semibold
+            inline-flex
+            items-center
+            justify-center
+            transition-all
+            duration-200
+            hover:-translate-y-0.5
+            hover:shadow-lg
+            shrink-0
+        "
+    >
+        <span className="text-lg leading-none sm:mr-2">+</span>
 
-                                    <span className="hidden md:block">
-                                        Create Post
-                                    </span>
-                                </Link>
-                            )}
+        <span className="hidden xl:inline">
+            Create Post
+        </span>
+    </Link>
+)}
 
                             <div className="relative">
 
@@ -178,6 +184,7 @@ function Navbar() {
                                     className="
                                         h-10
                                         w-10
+                                        shrink-0
                                         rounded-full
                                         bg-sky-500
                                         hover:bg-sky-600
@@ -192,7 +199,11 @@ function Navbar() {
                                         hover:ring-sky-200
                                     "
                                 >
-                                    {user.name?.charAt(0).toUpperCase()}
+                                    <img
+                                        src={avatarUrl}
+                                        alt="Profile"
+                                        className="h-full w-full rounded-full object-cover"
+                                    />
                                 </button>
 
                                 {dropdownOpen && (

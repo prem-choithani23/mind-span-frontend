@@ -62,6 +62,16 @@ const commentEndpoints = {
     delete: `${API_PREFIX}/comments/:commentId`,
 };
 
+const userEndpoints = {
+    me: `${API_PREFIX}/users/me`,
+    updateAvatar: `${API_PREFIX}/users/me/avatar`,
+};
+
+
+const passwordEndpoints = {
+    forgotPassword: `${API_PREFIX}/password/forgot-password`,
+    reset: `${API_PREFIX}/password/reset`,
+};
 
 export {
     categoryEndpoints,
@@ -69,4 +79,6 @@ export {
     postEndpoints,
     authEndpoints,
     commentEndpoints,
+    userEndpoints,
+    passwordEndpoints
 };

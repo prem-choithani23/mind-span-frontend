@@ -7,16 +7,17 @@ import { getPostsByCategory } from "../../api/services/postService.js";
 import { pastelColorFromString, lightenHsl } from "../../utils/color.js";
 import { timeAgo } from "../../utils/timeAgo.js";
 import { getBlogCardImage } from "../../utils/blogCardImage.js";
-import Next from "../../../public/assets/icons/next.png";
+import Next from "/assets/icons/next.png";
+import MoreButton from "../../components/MoreButton.jsx";
 
 export default function CategoryBlogSection({
-                                                categoryId,
-                                                categoryName,
-                                                title,
-                                                subtitle,
-                                                showSidebar = true,
-                                                showMoreButton = true,
-                                            }) {
+    categoryId,
+    categoryName,
+    title,
+    subtitle,
+    showSidebar = true,
+    showMoreButton = true,
+}) {
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
@@ -54,9 +55,8 @@ export default function CategoryBlogSection({
                 <div className="flex justify-between items-center">
                     <p className="font-bold text-[28px]">{title || categoryName}</p>
                     {showMoreButton && (
-                        <button className="w-[64px] pl-[10px] max-md:hidden font-bold hover:cursor-pointer hover:scale-[1.1] transition-all justify-center h-[25px] rounded-xl text-[#44464b] flex bg-[#faedcb] hover:bg-[#f2c6de] dark:bg-[#f2c6de]">
-                            more {NextIcon}
-                        </button>
+                        <MoreButton categoryName={categoryName} />
+
                     )}
                 </div>
                 {subtitle && <p className="text-[#94979e]">{subtitle}</p>}

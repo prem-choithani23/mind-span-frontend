@@ -1,8 +1,11 @@
 import React from "react";
 import {Link} from "react-router-dom";
 import CATEGORY_ICONS, { DEFAULT_AVATAR_ICON, DEFAULT_CATEGORY_ICON } from "../utils/categorySymbol.js";
+import { timeAgo } from "../utils/timeAgo.js";
+import { getImageUrl } from "../utils/imageUrlUtil.js";
 
 export default function BlogCard({
+            post,
             upperColor = "#cfe5f3",
             lowerColor = "#c4dced",
             title = "Together happy feelings continue juvenile one had",
@@ -14,10 +17,21 @@ export default function BlogCard({
             slug,
             time = "3 weeks ago",
         }) {
-
-    const categoryImageUrl = CATEGORY_ICONS[category] != null ? CATEGORY_ICONS[category] : DEFAULT_CATEGORY_ICON;
-
-    const avatarUrl = author.imageUrl ? author.imageUrl : DEFAULT_AVATAR_ICON
+    const resolvedPost = post || {};
+    const resolvedAuthor = resolvedPost.author ?? (typeof author === "string" ? { name: author } : author);
+    const categoryName = resolvedPost.category?.name ?? category;
+    const imageSrc = resolvedPost.featuredImageUrl ?? resolvedPost.imageUrl ?? imageUrl;
+    const commentsCount = resolvedPost.commentCount ?? resolvedPost.comments ?? comments;
+    const viewCount = resolvedPost.viewCount ?? views;
+    const displayTime = resolvedPost.publishedAt ? timeAgo(resolvedPost.publishedAt) : time;
+    const titleText = resolvedPost.title ?? title;
+    const slugValue = resolvedPost.slug ?? slug;
+    const topBackgroundColor = resolvedPost.colors?.upper ?? upperColor;
+    const bottomBackgroundColor = resolvedPost.colors?.lower ?? lowerColor;
+    const avatarUrl = resolvedAuthor?.avatarUrl
+    ? getImageUrl(resolvedAuthor.avatarUrl)
+    : DEFAULT_AVATAR_ICON;
+    const categoryImageUrl = CATEGORY_ICONS[categoryName] != null ? CATEGORY_ICONS[categoryName] : DEFAULT_CATEGORY_ICON;
     return (
         <div
             className={`
@@ -40,14 +54,14 @@ export default function BlogCard({
     p-2 sm:p-2 md:p-3 lg:p-5
     
   `}
-                style={{ backgroundColor: upperColor }}
+                style={{ backgroundColor: topBackgroundColor }}
             >
 
 
             {/* Image + Icon (overlay) */}
 
 
-                {imageUrl && (
+                {imageSrc && (
                     <div
                         className={`
                             relative flex items-center justify-center
@@ -60,7 +74,7 @@ export default function BlogCard({
 
                     {/* Image */}
                         <img
-                            src={imageUrl}
+                            src={imageSrc}
                             alt=""
                             className={`
                                 transition-transform duration-300
@@ -85,7 +99,7 @@ export default function BlogCard({
 
                         {/* Icon overlay */}
                         <div
-                            style={{ backgroundColor: lowerColor }}
+                            style={{ backgroundColor: bottomBackgroundColor }}
                             className={`
                                 absolute w-10 h-10 flex items-center justify-center
                                 rounded-lg text-white z-10
@@ -132,13 +146,13 @@ export default function BlogCard({
                           `}
                     >
 
-                    <Link to={`/blogs/${slug}`}>{title}</Link>
+                    <Link to={`/blogs/${slugValue}`}>{titleText}</Link>
 
                     </h3>
 
 
                     <p className="mt-2 text-[#6b7280] text-[14px]">
-                        {comments} Comments • 2 Min Read • {views} Views
+                        {commentsCount} Comments • 2 Min Read • {viewCount} Views
                     </p>
 
                 </div>
@@ -151,11 +165,11 @@ export default function BlogCard({
                     h-[68px]
                     border-t border-black/5
                   `}
-                style={{ backgroundColor: lowerColor }}
+                style={{ backgroundColor: bottomBackgroundColor }}
             >
 
 
-                <Link to={`/author/${author.id}`}>
+                <Link to={`/author/${resolvedAuthor?.id}`}>
 
                     <div className="flex items-center gap-3">
                         <img
@@ -164,8 +178,8 @@ export default function BlogCard({
                             alt="author"
                         />
                         <div className="text-[15px]">
-                            <p className="font-semibold text-[#3b3f45]">{author.name}</p>
-                            <p className="text-xs text-[#6b7280]">{time}</p>
+                            <p className="font-semibold text-[#3b3f45]">{resolvedAuthor?.name}</p>
+                            <p className="text-xs text-[#6b7280]">{displayTime}</p>
                         </div>
                     </div>
                 </Link>

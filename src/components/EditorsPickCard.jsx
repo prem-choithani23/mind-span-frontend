@@ -1,12 +1,27 @@
+import { ImageOff } from "lucide-react";
 import React from "react";
 import {Link} from "react-router-dom";
+import {DEFAULT_AVATAR_ICON} from "../utils/categorySymbol.js";
+import { getImageUrl } from "../utils/imageUrlUtil.js";
 export default function EditorsPickCard({
+                                            post,
                                             imageUrl,
                                             title,
                                             author,
                                             upperColor,
                                             slug
                                         }) {
+    const resolvedPost = post || {};
+    const resolvedAuthor = resolvedPost.author ?? author;
+    const imageSrc = resolvedPost.featuredImageUrl ?? resolvedPost.imageUrl ?? imageUrl;
+    const titleText = resolvedPost.title ?? title;
+    const slugValue = resolvedPost.slug ?? slug;
+    const avatarUrl = resolvedAuthor?.avatarUrl
+    ? getImageUrl(resolvedAuthor.avatarUrl)
+    : DEFAULT_AVATAR_ICON;
+
+    const cardColor = resolvedPost.colors?.upper ?? upperColor;
+
     return (
         <div
             className="
@@ -16,12 +31,12 @@ export default function EditorsPickCard({
                 overflow-hidden
                 group
             "
-            style={{backgroundColor:upperColor}}
+            style={{backgroundColor:cardColor}}
         >
             {/* Image */}
             <img
-                src={imageUrl}
-                alt={title}
+                src={imageSrc}
+                alt={titleText}
                 className="
                     absolute inset-0
                     w-full h-full
@@ -44,7 +59,7 @@ export default function EditorsPickCard({
 
             {/* Content */}
             <div className="relative z-10 h-full flex flex-col justify-end p-6">
-                <Link to={`/blogs/${slug}`}>
+                <Link to={`/blogs/${slugValue}`}>
 
 
                     <h3
@@ -57,21 +72,21 @@ export default function EditorsPickCard({
                         hover:underline
                     "
                     >
-                        {title}
+                        {titleText}
                     </h3>
                 </Link>
 
 
-                <Link to={`/author/${author.id}`}>
+                <Link to={`/author/${resolvedAuthor?.id}`}>
 
                     <div className="flex items-center gap-3">
                         <img
-                            src={author.imageUrl}
+                            src={avatarUrl}
                             alt={"author image"}
                             className="w-8 h-8 rounded-full"
                         />
                         <p className="text-white text-sm opacity-90">
-                            {author.name}
+                            {resolvedAuthor?.name}
                         </p>
                     </div>
                 </Link>

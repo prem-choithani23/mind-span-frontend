@@ -1,5 +1,6 @@
 import {Link} from "react-router-dom";
 export default function FeaturedPostCard({
+                                             post,
                                              upperColor,
                                              imageUrl,
                                              title,
@@ -9,9 +10,18 @@ export default function FeaturedPostCard({
                                              minRead = 0,
                                              slug
                                          }) {
+    const resolvedPost = post || {};
+    const resolvedAuthor = resolvedPost.author ?? author;
+    const imageSrc = resolvedPost.featuredImageUrl ?? imageUrl;
+    const titleText = resolvedPost.title ?? title;
+    const viewCount = resolvedPost.viewCount ?? views;
+    const commentsCount = resolvedPost.commentCount ?? comments;
+    const minReadTime = resolvedPost.readTime ?? minRead;
+    const slugValue = resolvedPost.slug ?? slug;
+    const cardColor = resolvedPost.colors?.upper ?? upperColor;
     return (
         <div
-            style={{ backgroundColor: upperColor }}
+            style={{ backgroundColor: cardColor }}
             className="
         rounded-md
         overflow-hidden
@@ -46,7 +56,7 @@ export default function FeaturedPostCard({
   "
             >
                 <img
-                    src={imageUrl}
+                    src={imageSrc}
                     alt=""
                     className="
       max-w-full max-h-full
@@ -73,9 +83,9 @@ export default function FeaturedPostCard({
             >
 
             {/* Author */}
-                <Link to={`/author/${author.id}`}>
+                <Link to={`/author/${resolvedAuthor?.id}`}>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <span className=" hover:underline font-medium">{author.name}</span>
+                        <span className=" hover:underline font-medium">{resolvedAuthor?.name}</span>
                         <span>• 3 weeks ago</span>
                     </div>
 
@@ -83,21 +93,21 @@ export default function FeaturedPostCard({
 
 
                 {/* Title */}
-                <Link to={`/blogs/${slug}`}>
+                <Link to={`/blogs/${slugValue}`}>
 
                     <h3 className="text-2xl xl:text-3xl font-bold leading-tight hover:underline">
-                        {title}
+                        {titleText}
                     </h3>
                 </Link>
 
 
                 {/* Meta */}
                 <div className="text-sm text-gray-600 flex gap-2 flex-wrap">
-                    <span>{comments} Comments</span>
+                    <span>{commentsCount} Comments</span>
                     <span>•</span>
-                    <span>{minRead} Min Read</span>
+                    <span>{minReadTime} Min Read</span>
                     <span>•</span>
-                    <span>{views} Views</span>
+                    <span>{viewCount} Views</span>
                 </div>
             </div>
         </div>

@@ -3,8 +3,17 @@ import { createContext, useContext, useEffect, useState } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUserState] = useState(null);
     const [accessToken, setAccessToken] = useState(null);
+
+    const setUser = (userData) => {
+        setUserState(userData);
+        if (userData) {
+            localStorage.setItem("user", JSON.stringify(userData));
+        } else {
+            localStorage.removeItem("user");
+        }
+    };
 
     // Rehydrate on page refresh
     useEffect(() => {
@@ -12,7 +21,7 @@ export const AuthProvider = ({ children }) => {
         const savedUser = localStorage.getItem("user");
         if (token && savedUser) {
             setAccessToken(token);
-            setUser(JSON.parse(savedUser));
+            setUserState(JSON.parse(savedUser));
         }
     }, []);
 
@@ -33,7 +42,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, accessToken, login, logout }}>
+        <AuthContext.Provider value={{ user, accessToken, setUser, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

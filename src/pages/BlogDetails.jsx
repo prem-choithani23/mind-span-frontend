@@ -50,6 +50,7 @@ export default function BlogDetails() {
     const [likeLoading, setLikeLoading] = useState(false);
     const showToast = useToast();
 
+
     const handleLikeToggle = async () => {
         if (!user) {
             showToast("error", "Login to like posts.");
@@ -168,6 +169,8 @@ export default function BlogDetails() {
                         <>
                             {/* blurred, scaled-up backdrop — fills any space left/right of the
                                 unstretched image so there's never a hard empty edge */}
+
+                            
                             <img
                                 src={getImageUrl(post.featuredImageUrl)}
                                 alt=""
@@ -197,10 +200,12 @@ export default function BlogDetails() {
 
             {/* METADATA — lives on the ordinary page background so it reads correctly
                 against every theme and every photo, instead of fighting the image for contrast. */}
+
+        
             <div className="mb-16 mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-600 dark:text-gray-300">
                 <div className="flex items-center gap-2.5">
                     <img
-                        src={post.author?.avatarUrl || post.author?.imageUrl || DEFAULT_AVATAR_ICON}
+                        src={post.author?.avatarUrl ? getImageUrl(post.author.avatarUrl) : DEFAULT_AVATAR_ICON}
                         alt={post.author?.name || "author"}
                         className="h-9 w-9 rounded-full border border-gray-200 object-cover dark:border-white/10"
                     />

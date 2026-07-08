@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 
@@ -24,7 +24,7 @@ import {
     AlertCircle,
     ArrowLeft,
 } from "lucide-react";
-import { createPost } from "../api/services/postService.js";
+import { createPost, getPostById, updatePost, uploadPostImage } from "../api/services/postService.js";
 import { getAllCategories } from "../api/services/categoryService.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useRole } from "../hooks/useRole.js";
@@ -413,6 +413,9 @@ export default function CreatePost() {
     const selectionRef = useRef({ start: 0, end: 0 });
     const navigate = useNavigate();
     const showToast = useToast();
+    const [searchParams] = useSearchParams();
+    const draftId = searchParams.get("draftId");
+    const isEditing = Boolean(draftId);
 
     const [title, setTitle] = useState("");
     const [excerpt, setExcerpt] = useState("");
@@ -421,12 +424,14 @@ export default function CreatePost() {
     const [categoryId, setCategoryId] = useState(null);
     const [file, setFile] = useState(null);
     const [filePreviewUrl, setFilePreviewUrl] = useState(null);
+    const [existingImageUrl, setExistingImageUrl] = useState(null);
     const [publishing, setPublishing] = useState(null); // null | "draft" | "publish"
     const [helpOpen, setHelpOpen] = useState(false);
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [mobileView, setMobileView] = useState("write"); // "write" | "preview"
     const [restoreBanner, setRestoreBanner] = useState(false);
     const [mediaModal, setMediaModal] = useState(null); // null | "image" | "link"
+    const [loadingDraft, setLoadingDraft] = useState(isEditing);
     const restoreDraftRef = useRef(null);
 
     useEffect(() => {
@@ -434,15 +439,37 @@ export default function CreatePost() {
             .then((res) => {
                 const list = res.data || [];
                 setCategories(list);
-                if (!categoryId && list.length > 0) {
+                if (!categoryId && list.length > 0 && !isEditing) {
                     setCategoryId(list[0].id);
                 }
             })
             .catch(() => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Offer to restore a locally saved draft on first load
+    // Editing an existing post/draft: load it and prefill the form
     useEffect(() => {
+        if (!isEditing) return;
+        getPostById(draftId)
+            .then((res) => {
+                const p = res.data;
+                setTitle(p.title || "");
+                setExcerpt(p.excerpt || "");
+                setContent(p.content || "");
+                setCategoryId(p.category?.id ?? null);
+                setExistingImageUrl(p.featuredImageUrl || null);
+            })
+            .catch(() => {
+                showToast("error", "Unable to load that post.");
+                navigate("/profile");
+            })
+            .finally(() => setLoadingDraft(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [draftId]);
+
+    // Offer to restore a locally saved draft on first load (only when starting a brand-new post)
+    useEffect(() => {
+        if (isEditing) return;
         try {
             const raw = localStorage.getItem(DRAFT_KEY);
             if (raw) {
@@ -455,6 +482,7 @@ export default function CreatePost() {
         } catch {
             // ignore malformed/unavailable storage
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -469,13 +497,21 @@ export default function CreatePost() {
 
     const justSaved = useDebouncedLocalDraft(
         { title, excerpt, content, categoryId },
-        !restoreBanner
+        !restoreBanner && !isEditing
     );
 
     if (!user || !canWritePost) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-white dark:bg-[#212435] text-gray-500 dark:text-[#94979e]">
                 You are not authorized to create posts.
+            </div>
+        );
+    }
+
+    if (loadingDraft) {
+        return (
+            <div className="flex min-h-screen items-center justify-center gap-2 bg-white dark:bg-[#212435] text-gray-500 dark:text-[#94979e]">
+                <Loader2 size={16} className="animate-spin" /> Loading post...
             </div>
         );
     }
@@ -660,6 +696,28 @@ export default function CreatePost() {
         }
         setPublishing(publish ? "publish" : "draft");
         try {
+            const status = publish ? "PUBLISHED" : "DRAFT";
+
+            if (isEditing) {
+                // PUT /api/v1/posts/{id} — JSON only, per UpdatePostRequest
+                await updatePost(draftId, {
+                    title: title.trim(),
+                    content,
+                    excerpt: excerpt.trim(),
+                    featuredImageUrl: existingImageUrl,
+                    categoryId: categoryId || (categories[0] && categories[0].id),
+                    tagIds: [],
+                    status,
+                });
+                // a new file was chosen — push it through the dedicated image endpoint
+                if (file) {
+                    await uploadPostImage(draftId, file);
+                }
+                showToast("success", publish ? "Post published" : "Draft updated");
+                navigate("/profile");
+                return;
+            }
+
             const postPayload = {
                 title: title.trim(),
                 content,
@@ -667,7 +725,7 @@ export default function CreatePost() {
                 featuredImageUrl: null,
                 categoryId: categoryId || (categories[0] && categories[0].id),
                 tagIds: [],
-                status: publish ? "PUBLISHED" : "DRAFT",
+                status,
             };
 
             const form = new FormData();
@@ -688,7 +746,7 @@ export default function CreatePost() {
             const slug = res.data?.slug || res.data?.id;
             navigate(slug ? `/blogs/${slug}` : "/profile");
         } catch (err) {
-            showToast("error", err.response?.data?.message || "Unable to create post");
+            showToast("error", err.response?.data?.message || "Unable to save post");
         } finally {
             setPublishing(null);
         }
@@ -696,6 +754,7 @@ export default function CreatePost() {
 
     const words = wordCount(content);
     const readingTime = Math.max(1, Math.round(words / 200));
+    const displayedImage = filePreviewUrl || existingImageUrl;
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#212435] text-black dark:text-white">
@@ -729,6 +788,11 @@ export default function CreatePost() {
                     </button>
 
                     <div className="flex items-center gap-3">
+                        {isEditing && (
+                            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-300">
+                                Editing draft
+                            </span>
+                        )}
                         <span
                             className={`flex items-center gap-1 text-xs text-gray-400 dark:text-[#94979e] transition-opacity duration-300
                                         ${justSaved ? "opacity-100" : "opacity-0"}`}
@@ -805,9 +869,9 @@ export default function CreatePost() {
                                         Featured image
                                     </label>
                                     <div className="flex items-center gap-3">
-                                        {filePreviewUrl && (
+                                        {displayedImage && (
                                             <img
-                                                src={filePreviewUrl}
+                                                src={displayedImage}
                                                 alt="Featured preview"
                                                 className="h-12 w-12 rounded-lg border border-[#ebebeb] dark:border-white/10 object-cover"
                                             />

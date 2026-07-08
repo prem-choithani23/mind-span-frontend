@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
     Camera,
@@ -11,17 +11,17 @@ import {
     Eye,
     EyeOff,
     Mail,
+    Pencil,
+    Trash2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
-import { getPostsByUser, getFeaturedPosts } from "../api/services/postService.js";
+import { getPostsByUser, getFeaturedPosts, deletePost } from "../api/services/postService.js";
 import { updateProfile, uploadAvatar } from "../api/services/userService.js";
 import { resetPassword } from "../api/services/passwordService.js";
 import BlogCard from "../components/BlogCard.jsx";
 import { pastelColorFromString, lightenHsl } from "../utils/color.js";
 import { getBlogCardImage } from "../utils/blogCardImage.js";
-import { DEFAULT_AVATAR_ICON } from "../utils/categorySymbol.js";
-import { getImageUrl } from "../utils/imageUrlUtil.js";
 
 const PAGE_SIZE = 6;
 
@@ -55,26 +55,115 @@ function renderBlogCard(post) {
     );
 }
 
+/* ---------------- owner controls: wraps BlogCard without touching its internals ---------------- */
+
+function OwnPostCard({ post, isPendingDelete, isDeleting, onAskDelete, onCancelDelete, onConfirmDelete }) {
+    return (
+        <div className="group relative">
+            {renderBlogCard(post)}
+
+            {!isPendingDelete && (
+                <div className="pointer-events-none absolute right-3 top-3 flex gap-1.5 opacity-0 transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
+                    <Link
+                        to={`/create-post?draftId=${post.id}`}
+                        aria-label="Edit post"
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-gray-700 shadow-sm
+                                   transition-colors hover:bg-sky-500 hover:text-white dark:bg-[#212435]/95 dark:text-gray-200
+                                   dark:hover:bg-pink-300 dark:hover:text-black"
+                    >
+                        <Pencil size={14} />
+                    </Link>
+                    <button
+                        onClick={() => onAskDelete(post.id)}
+                        aria-label="Delete post"
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-gray-700 shadow-sm
+                                   transition-colors hover:bg-red-500 hover:text-white dark:bg-[#212435]/95 dark:text-gray-200"
+                    >
+                        <Trash2 size={14} />
+                    </button>
+                </div>
+            )}
+
+            {isPendingDelete && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg bg-black/70 p-4 text-center backdrop-blur-sm">
+                    <p className="text-sm font-medium text-white">Delete "{post.title}"?</p>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => onConfirmDelete(post.id)}
+                            disabled={isDeleting}
+                            className="flex items-center gap-1.5 rounded-full bg-red-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-red-600"
+                        >
+                            {isDeleting && <Loader2 size={12} className="animate-spin" />}
+                            Delete
+                        </button>
+                        <button
+                            onClick={onCancelDelete}
+                            disabled={isDeleting}
+                            className="rounded-full bg-white/20 px-4 py-1.5 text-xs font-semibold text-white hover:bg-white/30"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 /* ---------------- draft row (compact, links straight to the editor) ---------------- */
 
-function DraftRow({ post }) {
+function DraftRow({ post, isPendingDelete, isDeleting, onAskDelete, onCancelDelete, onConfirmDelete }) {
+    if (isPendingDelete) {
+        return (
+            <div className="flex items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
+                <p className="text-sm text-red-600 dark:text-red-300">Delete "{post.title || "Untitled draft"}"?</p>
+                <div className="flex shrink-0 gap-2">
+                    <button
+                        onClick={() => onConfirmDelete(post.id)}
+                        disabled={isDeleting}
+                        className="flex items-center gap-1.5 rounded-full bg-red-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-600"
+                    >
+                        {isDeleting && <Loader2 size={12} className="animate-spin" />}
+                        Delete
+                    </button>
+                    <button
+                        onClick={onCancelDelete}
+                        disabled={isDeleting}
+                        className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-200"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <Link
-            to={`/create-post?draftId=${post.id}`}
+        <div
             className="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4
                        transition-colors hover:border-sky-200 dark:border-white/10 dark:bg-[#2e3141]
                        dark:hover:border-pink-300/30"
         >
-            <div className="min-w-0">
+            <Link to={`/create-post?draftId=${post.id}`} className="min-w-0 flex-1">
                 <p className="truncate font-semibold text-black dark:text-white">{post.title || "Untitled draft"}</p>
-                <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
-                    {post.excerpt || "No excerpt yet"}
-                </p>
+                <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">{post.excerpt || "No excerpt yet"}</p>
+            </Link>
+            <div className="flex shrink-0 items-center gap-2">
+                <Link
+                    to={`/create-post?draftId=${post.id}`}
+                    className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-300"
+                >
+                    Continue editing
+                </Link>
+                <button
+                    onClick={() => onAskDelete(post.id)}
+                    aria-label="Delete draft"
+                    className="rounded-full p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                >
+                    <Trash2 size={14} />
+                </button>
             </div>
-            <span className="shrink-0 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-300">
-                Continue editing
-            </span>
-        </Link>
+        </div>
     );
 }
 
@@ -82,24 +171,21 @@ function DraftRow({ post }) {
 
 function EditProfileCard({ user, onSaved }) {
     const showToast = useToast();
-    const { setUser } = useAuth();
+    const { setUser } = useAuth(); // ⚠️ if your AuthContext doesn't expose setUser, this is just undefined and skipped safely
     const [name, setName] = useState(user?.name || "");
     const [bio, setBio] = useState(user?.bio || "");
     const [avatarFile, setAvatarFile] = useState(null);
-    const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl ? getImageUrl(user.avatarUrl) : DEFAULT_AVATAR_ICON);
+    const [avatarPreview, setAvatarPreview] = useState(null);
     const [saving, setSaving] = useState(false);
-    
-    const hasChanges = avatarFile || name !== (user?.name || "") || bio !== (user?.bio || "");
 
     useEffect(() => {
         if (!avatarFile) {
             setAvatarPreview(null);
             return;
         }
-        const url = avatarFile;
-    
+        const url = URL.createObjectURL(avatarFile);
         setAvatarPreview(url);
-        return () => url;
+        return () => URL.revokeObjectURL(url);
     }, [avatarFile]);
 
     const handleSave = async () => {
@@ -109,18 +195,15 @@ function EditProfileCard({ user, onSaved }) {
 
             if (avatarFile) {
                 const avatarRes = await uploadAvatar(avatarFile);
-                latestUser = avatarRes.data ?? latestUser;
+                latestUser = avatarRes.data;
             }
 
             const profileRes = await updateProfile({ name: name.trim(), bio: bio.trim() });
-            latestUser = profileRes.data ?? latestUser;
+            latestUser = profileRes.data;
 
-            if (typeof setUser === "function") {
-                setUser(latestUser);
-            }
+            if (typeof setUser === "function") setUser(latestUser);
             onSaved?.(latestUser);
             setAvatarFile(null);
-            setAvatarPreview(latestUser?.avatarUrl ? getImageUrl(latestUser.avatarUrl) : DEFAULT_AVATAR_ICON);
             showToast("success", "Profile updated.");
         } catch (e) {
             showToast("error", e.response?.data?.message || "Unable to update profile.");
@@ -129,6 +212,7 @@ function EditProfileCard({ user, onSaved }) {
         }
     };
 
+    const displayAvatar = avatarPreview || user?.avatarUrl;
 
     return (
         <div className="rounded-xl border border-gray-100 bg-white p-6 dark:border-white/10 dark:bg-[#2e3141]">
@@ -138,9 +222,9 @@ function EditProfileCard({ user, onSaved }) {
 
             <div className="mb-6 flex items-center gap-5">
                 <div className="group relative h-20 w-20 shrink-0">
-                    {avatarPreview ? (
+                    {displayAvatar ? (
                         <img
-                            src={avatarPreview}
+                            src={displayAvatar}
                             alt={user?.name}
                             className="h-20 w-20 rounded-full border border-gray-200 object-cover dark:border-white/10"
                         />
@@ -197,7 +281,7 @@ function EditProfileCard({ user, onSaved }) {
             <div className="mt-5 flex justify-end">
                 <button
                     onClick={handleSave}
-                    disabled={saving || !hasChanges}
+                    disabled={saving}
                     className="flex items-center gap-2 rounded-full bg-sky-500 px-5 py-2 text-sm font-semibold text-white
                                transition-colors hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -218,8 +302,6 @@ function ChangePasswordCard({ userId }) {
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
     const [showPasswords, setShowPasswords] = useState(false);
     const [saving, setSaving] = useState(false);
-    
-    const hasPasswordChanges = oldPassword.trim() && newPassword.trim() && confirmNewPassword.trim();
 
     const handleSubmit = async () => {
         if (!oldPassword || !newPassword || !confirmNewPassword) {
@@ -283,7 +365,7 @@ function ChangePasswordCard({ userId }) {
             <div className="mt-5 flex justify-end">
                 <button
                     onClick={handleSubmit}
-                    disabled={saving || !hasPasswordChanges}
+                    disabled={saving}
                     className="flex items-center gap-2 rounded-full bg-sky-500 px-5 py-2 text-sm font-semibold text-white
                                transition-colors hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -346,6 +428,10 @@ export default function Profile() {
 
     const [featuredPosts, setFeaturedPosts] = useState([]);
 
+    // shared delete state — an id is unique across a user's own posts regardless of which tab it's in
+    const [pendingDeleteId, setPendingDeleteId] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
+
     useEffect(() => {
         setLocalUser(authUser);
     }, [authUser]);
@@ -392,6 +478,21 @@ export default function Profile() {
         }
     };
 
+    const handleConfirmDelete = async (postId) => {
+        setDeletingId(postId);
+        try {
+            await deletePost(postId);
+            setPosts((prev) => prev.filter((p) => p.id !== postId));
+            setDrafts((prev) => prev.filter((p) => p.id !== postId));
+            showToast("success", "Post deleted.");
+        } catch (e) {
+            showToast("error", e.response?.data?.message || "Unable to delete post.");
+        } finally {
+            setDeletingId(null);
+            setPendingDeleteId(null);
+        }
+    };
+
     if (!user) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-white text-gray-500 dark:bg-[#212435] dark:text-[#94979e]">
@@ -413,18 +514,16 @@ export default function Profile() {
             <div className="mx-auto max-w-5xl px-4 py-12">
                 {/* USER HEADER */}
                 <div className="mb-10 flex items-center gap-6">
-                    {user?.avatarUrl ? (
+                    {user.avatarUrl ? (
                         <img
-                            src={getImageUrl(user.avatarUrl)}
+                            src={user.avatarUrl}
                             alt={user.name}
                             className="h-20 w-20 rounded-full border border-gray-200 object-cover dark:border-white/10"
                         />
                     ) : (
-                        <img
-                            src={DEFAULT_AVATAR_ICON}
-                            alt="Default avatar"
-                            className="h-20 w-20 rounded-full border border-gray-200 object-cover dark:border-white/10"
-                        />
+                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-200 text-3xl font-bold text-gray-600 dark:bg-[#2e3141] dark:text-white">
+                            {user.name?.charAt(0).toUpperCase()}
+                        </div>
                     )}
                     <div>
                         <h1 className="text-3xl font-bold text-black dark:text-white">{user.name}</h1>
@@ -467,7 +566,19 @@ export default function Profile() {
                             <p className="text-gray-500 dark:text-[#94979e]">You haven't published any posts yet.</p>
                         ) : (
                             <>
-                                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{posts.map(renderBlogCard)}</div>
+                                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    {posts.map((post) => (
+                                        <OwnPostCard
+                                            key={post.id}
+                                            post={post}
+                                            isPendingDelete={pendingDeleteId === post.id}
+                                            isDeleting={deletingId === post.id}
+                                            onAskDelete={setPendingDeleteId}
+                                            onCancelDelete={() => setPendingDeleteId(null)}
+                                            onConfirmDelete={handleConfirmDelete}
+                                        />
+                                    ))}
+                                </div>
                                 {postsHasMore && (
                                     <div className="mt-8 text-center">
                                         <button
@@ -504,7 +615,19 @@ export default function Profile() {
                             </div>
                         ) : (
                             <>
-                                <div className="space-y-3">{drafts.map((d) => <DraftRow key={d.id} post={d} />)}</div>
+                                <div className="space-y-3">
+                                    {drafts.map((d) => (
+                                        <DraftRow
+                                            key={d.id}
+                                            post={d}
+                                            isPendingDelete={pendingDeleteId === d.id}
+                                            isDeleting={deletingId === d.id}
+                                            onAskDelete={setPendingDeleteId}
+                                            onCancelDelete={() => setPendingDeleteId(null)}
+                                            onConfirmDelete={handleConfirmDelete}
+                                        />
+                                    ))}
+                                </div>
                                 {draftsHasMore && (
                                     <div className="mt-8 text-center">
                                         <button

@@ -1,43 +1,46 @@
 import React from "react";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import CATEGORY_ICONS, { DEFAULT_CATEGORY_ICON, DEFAULT_AVATAR_ICON } from "../utils/categorySymbol.js";
 import { timeAgo } from "../utils/timeAgo.js";
 import { getImageUrl } from "../utils/imageUrlUtil.js";
 export default function BlogCardSpread({
-                                           post,
-                                           upperColor = "#cfe5f3",
-                                           lowerColor = "#c4dced",
-                                           title = "Together happy feelings continue juvenile one had",
-                                           imageUrl,
-                                           author = {
-                                               name: "William Lewis",
-                                               imageUrl: "https://i.pravatar.cc/100",
-                                           },
-                                           comments = 0,
-                                           views = 3,
-                                           category = "Lifestyle",
-                                           time = "3 weeks ago",
-                                           responsiveFeatured = false,
-                                            slug
-                                       }) {
+    post,
+    upperColor = "#cfe5f3",
+    lowerColor = "#c4dced",
+    title = "Together happy feelings continue juvenile one had",
+    imageUrl,
+    author = {
+        name: "William Lewis",
+        imageUrl: "https://i.pravatar.cc/100",
+    },
+    comments = 0,
+    views = 3,
+    category = "Lifestyle",
+    time = "3 weeks ago",
+    responsiveFeatured = false,
+    slug,
+    excerpt: excerptProp = "",
+}) {
     const resolvedPost = post || {};
     const resolvedAuthor = resolvedPost.author ?? author;
     const categoryName = resolvedPost.category?.name ?? category;
     const imageSrc = resolvedPost.featuredImageUrl ?? resolvedPost.imageUrl ?? imageUrl;
     const commentsCount = resolvedPost.commentCount ?? resolvedPost.comments ?? comments;
     const viewCount = resolvedPost.viewCount ?? views;
+    const excerpt = resolvedPost.excerpt ?? excerptProp;
     const displayTime = resolvedPost.publishedAt ? timeAgo(resolvedPost.publishedAt) : time;
     const titleText = resolvedPost.title ?? title;
     const slugValue = resolvedPost.slug ?? slug;
     const topBackgroundColor = resolvedPost.colors?.upper ?? upperColor;
     const bottomBackgroundColor = resolvedPost.colors?.lower ?? lowerColor;
-   const avatarUrl = resolvedAuthor?.avatarUrl
-    ? getImageUrl(resolvedAuthor.avatarUrl)
-    : DEFAULT_AVATAR_ICON;  
-    const categoryImageUrl = CATEGORY_ICONS[categoryName] != null ? CATEGORY_ICONS[categoryName] : DEFAULT_CATEGORY_ICON;
-    
 
-    
+    const avatarUrl = resolvedAuthor?.avatarUrl
+        ? getImageUrl(resolvedAuthor.avatarUrl)
+        : DEFAULT_AVATAR_ICON;
+    const categoryImageUrl = CATEGORY_ICONS[categoryName] != null ? CATEGORY_ICONS[categoryName] : DEFAULT_CATEGORY_ICON;
+
+
+
     return (
         <div
             className={`
@@ -45,11 +48,10 @@ export default function BlogCardSpread({
                 w-full
                 rounded-md overflow-hidden
                 shadow-lg bg-white
-                ${
-                responsiveFeatured
+                ${responsiveFeatured
                     ? "max-xl:h-auto xl:h-[500px]"
                     : "h-[500px] sm:h-[460px] md:h-[460px] lg:h-[500px]"
-            }
+                }
             `}
         >
 
@@ -72,11 +74,10 @@ export default function BlogCardSpread({
                         className={`
                             relative flex justify-center items-start
                             transition-all
-                            ${
-                            responsiveFeatured
+                            ${responsiveFeatured
                                 ? "max-xl:h-[360px] xl:h-auto"
                                 : ""
-                        }
+                            }
                         `}
                     >
                         <img
@@ -96,11 +97,10 @@ export default function BlogCardSpread({
                                 
                              
 
-                                ${
-                                responsiveFeatured
+                                ${responsiveFeatured
                                     ? "md:scale-[1.7]"
                                     : ""
-                            }
+                                }
                             `}
                         />
 
@@ -115,7 +115,7 @@ export default function BlogCardSpread({
                                 z-10
                             "
                         >
-                            <img src={categoryImageUrl} alt="category icon"/>
+                            <img src={categoryImageUrl} alt="category icon" />
                         </div>
                     </div>
                 )}
@@ -151,8 +151,14 @@ export default function BlogCardSpread({
 
 
                     <p className="mt-2 text-[#5f6368] text-[14px]">
-                        {commentsCount} Comments • 2 Min Read • {viewCount} Views
+                        {commentsCount} Comments • {viewCount} Views
                     </p>
+
+                    {excerpt && (
+                        <p className="mt-2 line-clamp-2 text-[14px] leading-snug text-[#6b7280]">
+                            {excerpt}
+                        </p>
+                    )}
                 </div>
             </div>
 

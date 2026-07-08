@@ -1,22 +1,23 @@
 import React from "react";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import CATEGORY_ICONS, { DEFAULT_AVATAR_ICON, DEFAULT_CATEGORY_ICON } from "../utils/categorySymbol.js";
 import { timeAgo } from "../utils/timeAgo.js";
 import { getImageUrl } from "../utils/imageUrlUtil.js";
 
 export default function BlogCard({
-            post,
-            upperColor = "#cfe5f3",
-            lowerColor = "#c4dced",
-            title = "Together happy feelings continue juvenile one had",
-            imageUrl,
-            author = "William Lewis",
-            comments = 0,
-            views = 3,
-            category = "Lifestyle",
-            slug,
-            time = "3 weeks ago",
-        }) {
+    post,
+    upperColor = "#cfe5f3",
+    lowerColor = "#c4dced",
+    title = "Together happy feelings continue juvenile one had",
+    imageUrl,
+    author = "William Lewis",
+    comments = 0,
+    views = 3,
+    category = "Lifestyle",
+    slug,
+    time = "3 weeks ago",
+    excerpt: excerptProp = "",
+}) {
     const resolvedPost = post || {};
     const resolvedAuthor = resolvedPost.author ?? (typeof author === "string" ? { name: author } : author);
     const categoryName = resolvedPost.category?.name ?? category;
@@ -26,11 +27,12 @@ export default function BlogCard({
     const displayTime = resolvedPost.publishedAt ? timeAgo(resolvedPost.publishedAt) : time;
     const titleText = resolvedPost.title ?? title;
     const slugValue = resolvedPost.slug ?? slug;
+    const excerpt = resolvedPost.excerpt ?? excerptProp;
     const topBackgroundColor = resolvedPost.colors?.upper ?? upperColor;
     const bottomBackgroundColor = resolvedPost.colors?.lower ?? lowerColor;
     const avatarUrl = resolvedAuthor?.avatarUrl
-    ? getImageUrl(resolvedAuthor.avatarUrl)
-    : DEFAULT_AVATAR_ICON;
+        ? getImageUrl(resolvedAuthor.avatarUrl)
+        : DEFAULT_AVATAR_ICON;
     const categoryImageUrl = CATEGORY_ICONS[categoryName] != null ? CATEGORY_ICONS[categoryName] : DEFAULT_CATEGORY_ICON;
     return (
         <div
@@ -42,7 +44,7 @@ export default function BlogCard({
             `}
         >
 
-        {/*/!* Vertical category *!/*/}
+            {/*/!* Vertical category *!/*/}
             {/*<div className="absolute left-[-40px] top-[70px] text-black font-bold -rotate-90 text-xs tracking-widest  opacity-90 z-20">*/}
             {/*    • {category.toUpperCase()}*/}
             {/*</div>*/}
@@ -58,7 +60,7 @@ export default function BlogCard({
             >
 
 
-            {/* Image + Icon (overlay) */}
+                {/* Image + Icon (overlay) */}
 
 
                 {imageSrc && (
@@ -72,7 +74,7 @@ export default function BlogCard({
                     >
 
 
-                    {/* Image */}
+                        {/* Image */}
                         <img
                             src={imageSrc}
                             alt=""
@@ -109,7 +111,7 @@ export default function BlogCard({
                                 
                               `}
                         >
-                            <img src={categoryImageUrl} alt="category icon"/>
+                            <img src={categoryImageUrl} alt="category icon" />
                         </div>
 
                     </div>
@@ -146,14 +148,20 @@ export default function BlogCard({
                           `}
                     >
 
-                    <Link to={`/blogs/${slugValue}`}>{titleText}</Link>
+                        <Link to={`/blogs/${slugValue}`}>{titleText}</Link>
 
                     </h3>
 
 
                     <p className="mt-2 text-[#6b7280] text-[14px]">
-                        {commentsCount} Comments • 2 Min Read • {viewCount} Views
+                        {commentsCount} Comments • {viewCount} Views
                     </p>
+
+                    {excerpt && (
+                        <p className="mt-2 line-clamp-2 min-h-[40px] pr-3 text-[14px] leading-tight text-[#6b7280]">
+                            {excerpt}
+                        </p>
+                    )}
 
                 </div>
             </div>

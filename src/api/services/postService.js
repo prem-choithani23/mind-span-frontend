@@ -11,6 +11,9 @@ const resolvePath = (path, params) =>
         path
     );
 
+export const getPostById = (id) =>
+    API.get(resolvePath(postEndpoints.getById, { id }));
+
 export const getAllPosts = (page = DEFAULT_PAGE, size = DEFAULT_SIZE) =>
     API.get(postEndpoints.getAll, { params: { page, size } });
 
@@ -27,9 +30,9 @@ export const getPostsByTag = (tagId, page = DEFAULT_PAGE, size = DEFAULT_SIZE) =
         params: { page, size },
     });
 
-export const getPostsByUser = (userId, page = DEFAULT_PAGE, size = DEFAULT_SIZE) =>
+export const getPostsByUser = (userId, page = DEFAULT_PAGE, size = DEFAULT_SIZE, status) =>
     API.get(resolvePath(postEndpoints.getPostByUser, { userId }), {
-        params: { page, size },
+        params: status ? { page, size, status } : { page, size },
     });
 
 export const searchPosts = (query, page = DEFAULT_PAGE, size = DEFAULT_SIZE) =>

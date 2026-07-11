@@ -73,6 +73,15 @@ const passwordEndpoints = {
     reset: `${API_PREFIX}/password/reset`,
 };
 
+/* ===================== ROLE UPGRADE REQUEST ===================== */
+/* ===================== ROLE UPGRADE REQUEST ===================== */
+const roleUpgradeRequestEndpoints = {
+    create: `${API_PREFIX}/role-upgrade-request`,
+    getMyRequest: `${API_PREFIX}/role-upgrade-request/me`,
+    getPendingRequests: `${API_PREFIX}/role-upgrade-request`,
+    approve: `${API_PREFIX}/role-upgrade-request/:requestId/approve`,
+    reject: `${API_PREFIX}/role-upgrade-request/:requestId/reject`,
+};
 export {
     categoryEndpoints,
     tagEndpoints,
@@ -80,5 +89,6 @@ export {
     authEndpoints,
     commentEndpoints,
     userEndpoints,
-    passwordEndpoints
+    passwordEndpoints,
+    roleUpgradeRequestEndpoints
 };

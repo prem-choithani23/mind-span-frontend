@@ -10,10 +10,9 @@ import Blogs from "../pages/Blogs.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import BlogDetails from "../pages/BlogDetails.jsx";
 import Profile from "../pages/Profile.jsx";
-import AuthorProfile from "../components/author/AuthorProfile.jsx";
 import CreatePost from "../pages/CreatePost.jsx";
 import AdminDashboard from "../pages/admin/AdminDashboard.jsx"
-
+import AuthorProfilePage from "../pages/AuthorProfilePage.jsx"
 
 function AppRoutes() {
     return (
@@ -33,7 +32,7 @@ function AppRoutes() {
                     <Route path="/create-post" element={<CreatePost/>}/>
                     <Route path="blogs/:slug" element={<BlogDetails />} />
                     <Route path="about" element={<About />} />
-                    <Route path="author/:slug" element={<AuthorProfile />} />
+                    <Route path="author/:id" element={<AuthorProfilePage />} />
 
                     {/* Protected routes — require login */}
                     <Route element={<ProtectedRoute />}>

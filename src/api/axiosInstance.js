@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getAccessToken } from "../utils/auth.js";
-import { authEndpoints } from "../endpoints.js";
+import { authEndpoints } from "../api/endpoints.js";
 
 const API = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL,

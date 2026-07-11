@@ -992,8 +992,29 @@ export default function CreatePost() {
                                         lg:border-t-0 lg:border-l ${mobileView === "write" ? "hidden lg:block" : ""}`}
                         >
                             {content.trim() ? (
-                                <article>
-                                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
+                                <article className="prose dark:prose-invert max-w-none">
+                                    <ReactMarkdown
+                                        rehypePlugins={[rehypeRaw]}
+                                        components={{
+                                            h1: ({children}) => (
+                                                <h1 className="text-4xl font-bold mt-6 mb-4">
+                                                    {children}
+                                                </h1>
+                                            ),
+                                            h2: ({children}) => (
+                                                <h2 className="text-3xl font-bold mt-5 mb-3">
+                                                    {children}
+                                                </h2>
+                                            ),
+                                            h3: ({children}) => (
+                                                <h3 className="text-2xl font-semibold mt-4 mb-2">
+                                                    {children}
+                                                </h3>
+                                            ),
+                                        }}
+                                    >
+                                        {content}
+                                    </ReactMarkdown>
                                 </article>
                             ) : (
                                 <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-gray-400 dark:text-[#94979e]">

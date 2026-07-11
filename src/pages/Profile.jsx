@@ -22,6 +22,8 @@ import { resetPassword } from "../api/services/passwordService.js";
 import BlogCard from "../components/BlogCard.jsx";
 import { pastelColorFromString, lightenHsl } from "../utils/color.js";
 import { getBlogCardImage } from "../utils/blogCardImage.js";
+import { getImageUrl } from "../utils/imageUrlUtil.js";
+import { DEFAULT_AVATAR_ICON, DEFAULT_CATEGORY_ICON } from "../utils/categorySymbol.js";
 
 const PAGE_SIZE = 6;
 
@@ -185,6 +187,8 @@ function EditProfileCard({ user, onSaved }) {
         }
         const url = URL.createObjectURL(avatarFile);
         setAvatarPreview(url);
+
+        console.log("URL : " + url)
         return () => URL.revokeObjectURL(url);
     }, [avatarFile]);
 
@@ -202,6 +206,8 @@ function EditProfileCard({ user, onSaved }) {
             latestUser = profileRes.data;
 
             if (typeof setUser === "function") setUser(latestUser);
+
+            setAvatarPreview(null)
             onSaved?.(latestUser);
             setAvatarFile(null);
             showToast("success", "Profile updated.");
@@ -210,9 +216,9 @@ function EditProfileCard({ user, onSaved }) {
         } finally {
             setSaving(false);
         }
-    };
+    }
 
-    const displayAvatar = avatarPreview || user?.avatarUrl;
+
 
     return (
         <div className="rounded-xl border border-gray-100 bg-white p-6 dark:border-white/10 dark:bg-[#2e3141]">
@@ -222,9 +228,9 @@ function EditProfileCard({ user, onSaved }) {
 
             <div className="mb-6 flex items-center gap-5">
                 <div className="group relative h-20 w-20 shrink-0">
-                    {displayAvatar ? (
+                    {avatarPreview || user?.avatarUrl ? (
                         <img
-                            src={displayAvatar}
+                            src={avatarPreview || getImageUrl(user.avatarUrl)}
                             alt={user?.name}
                             className="h-20 w-20 rounded-full border border-gray-200 object-cover dark:border-white/10"
                         />
@@ -516,7 +522,7 @@ export default function Profile() {
                 <div className="mb-10 flex items-center gap-6">
                     {user.avatarUrl ? (
                         <img
-                            src={user.avatarUrl}
+                            src={getImageUrl(user.avatarUrl)}
                             alt={user.name}
                             className="h-20 w-20 rounded-full border border-gray-200 object-cover dark:border-white/10"
                         />

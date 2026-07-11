@@ -12,6 +12,8 @@ import BlogDetails from "../pages/BlogDetails.jsx";
 import Profile from "../pages/Profile.jsx";
 import AuthorProfile from "../components/author/AuthorProfile.jsx";
 import CreatePost from "../pages/CreatePost.jsx";
+import AdminDashboard from "../pages/admin/AdminDashboard.jsx"
+
 
 function AppRoutes() {
     return (
@@ -36,6 +38,10 @@ function AppRoutes() {
                     {/* Protected routes — require login */}
                     <Route element={<ProtectedRoute />}>
                         <Route path="profile" element={<Profile />} />
+                    </Route>
+
+                    <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+                        <Route path="admin" element={<AdminDashboard />} />
                     </Route>
                 </Route>
 

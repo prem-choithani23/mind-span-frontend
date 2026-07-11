@@ -22,3 +22,7 @@ export const uploadAvatar = (file) => {
         headers: { "Content-Type": "multipart/form-data" },
     });
 };
+
+export function getPublicProfile(userId) {
+    return API.get(userEndpoints.getPublicProfile.replace(":userId", userId));
+}

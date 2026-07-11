@@ -65,6 +65,7 @@ const commentEndpoints = {
 const userEndpoints = {
     me: `${API_PREFIX}/users/me`,
     updateAvatar: `${API_PREFIX}/users/me/avatar`,
+    getPublicProfile: `${API_PREFIX}/users/:userId`,
 };
 
 

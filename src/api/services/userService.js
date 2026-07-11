@@ -1,15 +1,6 @@
 import axiosInstance from "../axiosInstance.js"; // ⚠️ adjust to your actual axios client import
 import { userEndpoints } from "../endpoints.js"; // ⚠️ add userEndpoints (below) to endpoints.js
 
-/* Add this to endpoints.js:
-
-const userEndpoints = {
-    me: `${API_PREFIX}/users/me`,
-    updateAvatar: `${API_PREFIX}/users/me/avatar`,
-};
-
-... and export it alongside the others.
-*/
 
 export const getMyProfile = () => axiosInstance.get(userEndpoints.me);
 
@@ -24,5 +15,5 @@ export const uploadAvatar = (file) => {
 };
 
 export function getPublicProfile(userId) {
-    return API.get(userEndpoints.getPublicProfile.replace(":userId", userId));
+    return axiosInstance.get(userEndpoints.getPublicProfile.replace(":userId", userId));
 }

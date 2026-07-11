@@ -1,3 +1,5 @@
+import { requestFormReset } from "react-dom";
+
 //** @type {import('tailwindcss').Config} */
 export default {
     darkMode: "class",
@@ -9,5 +11,7 @@ export default {
             },
         },
     },
-    plugins: [],
+    plugins: [
+        require("@tailwindcss/typography"),
+    ]
 };

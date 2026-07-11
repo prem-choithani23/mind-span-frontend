@@ -5,6 +5,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUserState] = useState(null);
     const [accessToken, setAccessToken] = useState(null);
+    const [isLoading, setIsLoading] = useState(true); // NEW
 
     const setUser = (userData) => {
         setUserState(userData);
@@ -23,6 +24,7 @@ export const AuthProvider = ({ children }) => {
             setAccessToken(token);
             setUserState(JSON.parse(savedUser));
         }
+        setIsLoading(false); // NEW — rehydration attempt is done either way
     }, []);
 
     const login = (userData, tokens) => {
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, accessToken, setUser, login, logout }}>
+        <AuthContext.Provider value={{ user, accessToken, isLoading, setUser, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

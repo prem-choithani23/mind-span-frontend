@@ -9,7 +9,7 @@ export const useRole = () => {
         isSubscriber: role === "SUBSCRIBER",
         isAuthor: role === "AUTHOR",
         isAdmin: role === "ADMIN",
-        canWritePost: role === "SUBSCRIBER" ||role === "AUTHOR" || role === "ADMIN",
+        canWritePost: role === "AUTHOR" || role === "ADMIN",
         canDeletePost: role === "AUTHOR",
         canManageTaxonomy: role === "ADMIN",
         canComment: !!user,

@@ -1,16 +1,17 @@
 import axios from "axios";
+import { getAccessToken } from "../utils/auth.js";
+import { authEndpoints } from "../endpoints.js";
 
-const axiosInstance = axios.create({
+const API = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL,
 });
 
-// Attach the access token to every outgoing request
-axiosInstance.interceptors.request.use((config) => {
-    const token = localStorage.getItem("accessToken");
+API.interceptors.request.use((req) => {
+    const token = getAccessToken();
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        req.headers.Authorization = `Bearer ${token}`;
     }
-    return config;
+    return req;
 });
 
 // ---- Refresh-on-401 logic ----
@@ -25,22 +26,22 @@ function resolveQueue(error, newToken = null) {
     pendingQueue = [];
 }
 
-axiosInstance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
+API.interceptors.response.use(
+    (res) => res,
+    async (err) => {
+        const originalRequest = err.config;
 
         // Only handle 401s, and only once per request (avoid infinite retry loops)
-        if (error.response?.status !== 401 || originalRequest._retry) {
-            return Promise.reject(error);
+        if (!err.response || err.response.status !== 401 || originalRequest._retry) {
+            return Promise.reject(err);
         }
 
-        // Don't attempt to refresh if the 401 came from the refresh/login endpoints themselves
+        // Don't try to refresh if the 401 came from auth endpoints themselves
         if (
-            originalRequest.url?.includes("/auth/refresh") ||
-            originalRequest.url?.includes("/auth/login")
+            originalRequest.url?.includes(authEndpoints.refresh) ||
+            originalRequest.url?.includes(authEndpoints.login)
         ) {
-            return Promise.reject(error);
+            return Promise.reject(err);
         }
 
         if (isRefreshing) {
@@ -50,9 +51,9 @@ axiosInstance.interceptors.response.use(
             })
                 .then((newToken) => {
                     originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                    return axiosInstance(originalRequest);
+                    return API(originalRequest);
                 })
-                .catch((err) => Promise.reject(err));
+                .catch((queueErr) => Promise.reject(queueErr));
         }
 
         originalRequest._retry = true;
@@ -62,15 +63,15 @@ axiosInstance.interceptors.response.use(
             const refreshToken = localStorage.getItem("refreshToken");
             if (!refreshToken) throw new Error("No refresh token available");
 
-            // NOTE: use a bare axios call here, not axiosInstance — we don't want
-            // this request going through the same interceptor and recursing.
+            // Bare axios here, NOT the API instance — avoid recursing through
+            // this same interceptor while refreshing.
             const res = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/api/v1/auth/refresh`,
+                `${import.meta.env.VITE_BASE_URL}${authEndpoints.refresh}`,
                 { refreshToken }
             );
 
             const newAccessToken = res.data.accessToken;
-            const newRefreshToken = res.data.refreshToken; // if your backend rotates refresh tokens too
+            const newRefreshToken = res.data.refreshToken; // only if your backend rotates it
 
             localStorage.setItem("accessToken", newAccessToken);
             if (newRefreshToken) localStorage.setItem("refreshToken", newRefreshToken);
@@ -78,7 +79,7 @@ axiosInstance.interceptors.response.use(
             resolveQueue(null, newAccessToken);
 
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            return axiosInstance(originalRequest);
+            return API(originalRequest);
         } catch (refreshError) {
             resolveQueue(refreshError, null);
 
@@ -95,4 +96,4 @@ axiosInstance.interceptors.response.use(
     }
 );
 
-export default axiosInstance;
+export default API;

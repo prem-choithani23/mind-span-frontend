@@ -1,63 +1,68 @@
 import React, { useState } from "react";
-import roleUpgradeRequestService from "../api/services/roleUpgradeRequestService"; // adjust path to match your project
+import { useAuthorUpgradeStatus } from "../hooks/useAuthorUpgradeStatus"; // adjust path
 
 export default function Subscribe({ className = "" }) {
+    const { state, error, submit } = useAuthorUpgradeStatus();
     const [message, setMessage] = useState("");
-    const [status, setStatus] = useState("idle"); // idle | loading | success
-    const [error, setError] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+
+    const wrapperClass = `
+        bg-[#f5f5f5]
+        dark:bg-[#2e3141]
+        rounded-xl
+        p-6
+        transition-colors
+        ${className}
+    `;
+
+    if (state === "loading" || state === "ineligible") {
+        return null;
+    }
 
     const handleSubmit = async () => {
-        setError("");
-        setStatus("loading");
-        try {
-            await roleUpgradeRequestService.create(message.trim());
-            setStatus("success");
-            setMessage("");
-        } catch (err) {
-            setStatus("idle");
-            setError(err.response?.data?.message || "Something went wrong. Please try again.");
-        }
+        setSubmitting(true);
+        await submit(message);
+        setSubmitting(false);
+        setMessage("");
     };
 
-    if (status === "success") {
+    if (state === "pending") {
         return (
-            <div
-                className={`
-                    bg-[#f5f5f5]
-                    dark:bg-[#2e3141]
-                    rounded-xl
-                    p-6
-                    transition-colors
-                    ${className}
-                `}
-            >
+            <div className={wrapperClass}>
                 <h3 className="font-bold text-[22px] text-[#3b3f45] dark:text-white">
-                    Request sent!
+                    Request under review
                 </h3>
                 <p className="text-[#94979e] dark:text-[#92949c] text-sm mt-2">
-                    Our team will review your request to become an author and get back to you soon.
+                    Your request to become an author is being reviewed by our team. We'll let you know as soon as there's an update.
                 </p>
             </div>
         );
     }
 
+    if (state === "approved") {
+        return (
+            <div className={wrapperClass}>
+                <h3 className="font-bold text-[22px] text-[#3b3f45] dark:text-white">
+                    You're approved! 🎉
+                </h3>
+                <p className="text-[#94979e] dark:text-[#92949c] text-sm mt-2">
+                    Your request was approved. Please refresh or log back in to unlock author tools.
+                </p>
+            </div>
+        );
+    }
+
+    // state === "none" or "rejected"
     return (
-        <div
-            className={`
-                bg-[#f5f5f5]
-                dark:bg-[#2e3141]
-                rounded-xl
-                p-6
-                transition-colors
-                ${className}
-            `}
-        >
+        <div className={wrapperClass}>
             <h3 className="font-bold text-[22px] text-[#3b3f45] dark:text-white">
-                Wanna write posts?
+                {state === "rejected" ? "Try again?" : "Wanna write posts?"}
             </h3>
 
             <p className="text-[#94979e] dark:text-[#92949c] text-sm mt-2">
-                Request author access and start publishing your own articles on MindSpan.
+                {state === "rejected"
+                    ? "Your previous request wasn't approved this time. You're welcome to submit a new one whenever you're ready."
+                    : "Request author access and start publishing your own articles on MindSpan."}
             </p>
 
             <input
@@ -75,13 +80,11 @@ export default function Subscribe({ className = "" }) {
                 "
             />
 
-            {error && (
-                <p className="text-rose-500 text-xs mt-2">{error}</p>
-            )}
+            {error && <p className="text-rose-500 text-xs mt-2">{error}</p>}
 
             <button
                 onClick={handleSubmit}
-                disabled={status === "loading"}
+                disabled={submitting}
                 className="
                     w-full mt-4 py-3 rounded-full
                     bg-[#faedcb] dark:bg-[#f2c6de]
@@ -93,7 +96,7 @@ export default function Subscribe({ className = "" }) {
                     disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed
                 "
             >
-                {status === "loading" ? (
+                {submitting ? (
                     <>
                         <i className="fa-solid fa-circle-notch fa-spin"></i>
                         Sending request...
@@ -101,7 +104,7 @@ export default function Subscribe({ className = "" }) {
                 ) : (
                     <>
                         <i className="fa-solid fa-paper-plane"></i>
-                        Request to become an author
+                        {state === "rejected" ? "Submit new request" : "Request to become an author"}
                     </>
                 )}
             </button>
